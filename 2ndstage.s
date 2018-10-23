@@ -1,18 +1,12 @@
 # ***********************************************************
 #
-# DevOS 2012
+# DevOS 2018
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-# ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-# SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-# AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Implementado por Adriel Freud!
+# Contato: businessc0rp2k17@gmail.com
+# FB: http://www.facebook.com/xrn401
+#   =>DebutySecTeamSecurity<=
 # 
-# ***********************************************************
 # ***********************************************************
 
 .code16
@@ -31,8 +25,8 @@ hang:
   jmp hang
 
 # 
-# Booting has failed because of a disk error. 
-# Inform the user and reboot.
+# A inicialização falhou devido a um erro no disco.
+# Informe o usuário e reinicie.
 # 
 bootFailure:
   mWriteString diskerror
@@ -47,4 +41,4 @@ diskerror:    .asciz "Disk error. "
 
 .include "bootsector.s"
 
-.fill 1024, 1, 1              # Pad 1K with 1-bytes to test file larger than 1 sector
+.fill 1024, 1, 1              # Pad 1K com 1 bytes para testar arquivo maior que 1 setor.

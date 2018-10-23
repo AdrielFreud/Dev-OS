@@ -1,38 +1,32 @@
 # ***********************************************************
 #
-# DevOS 2012
+# DevOS 2018
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-# ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-# SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-# AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Implementado por Adriel Freud!
+# Contato: businessc0rp2k17@gmail.com
+# FB: http://www.facebook.com/xrn401
+#   =>DebutySecTeamSecurity<=
 # 
-# ***********************************************************
 # ***********************************************************
 
 bootsector:
  iOEM:        .ascii "DevOS   "    # OEM String
- iSectSize:   .word  0x200         # Bytes per sector
- iClustSize:  .byte  1             # Sectors per cluster
- iResSect:    .word  1             # #of reserved sectors
- iFatCnt:     .byte  2             # #of fat copies
- iRootSize:   .word  224           # size of root directory
- iTotalSect:  .word  2880          # total # of sectors if below 32 MB
- iMedia:      .byte  0xF0          # Media Descriptor
- iFatSize:    .word  9             # Size of each FAT
- iTrackSect:  .word  9             # Sectors per track
- iHeadCnt:    .word  2             # number of read-write heads
- iHiddenSect: .int   0             # number of hidden sectors
- iSect32:     .int   0             # # sectors if over 32 MB
- iBootDrive:  .byte  0             # holds drive that the boot sector came from
- iReserved:   .byte  0             # reserved, empty
- iBootSign:   .byte  0x29          # extended boot sector signature
- iVolID:      .ascii "seri"        # disk serial
- acVolLabel:  .ascii "MYVOLUME   " # just placeholder. We don't yet use volume labels.
- acFSType:    .ascii "FAT16   "    # file system type
+ iSectSize:   .word  0x200         # Bytes por setor
+ iClustSize:  .byte  1             # Setores por cluster
+ iResSect:    .word  1             # #of setores reservados
+ iFatCnt:     .byte  2             # #of FAT cópias
+ iRootSize:   .word  224           # tamanho do diretório raiz
+ iTotalSect:  .word  2880          # total # de setores abaixo de 32 MB
+ iMedia:      .byte  0xF0          # Descritor de Mídia
+ iFatSize:    .word  9             # Tamanho de cada FAT
+ iTrackSect:  .word  9             # Setores por faixa
+ iHeadCnt:    .word  2             # número de cabeças de leitura/gravação
+ iHiddenSect: .int   0             # número de setores ocultos
+ iSect32:     .int   0             # # setores com mais de 32 MB
+ iBootDrive:  .byte  0             # detém unidade que o setor de inicialização veio
+ iReserved:   .byte  0             # reservado, vazio
+ iBootSign:   .byte  0x29          # assinatura do setor de inicialização estendida
+ iVolID:      .ascii "seri"        # Serial de Disco
+ acVolLabel:  .ascii "MYVOLUME   " # apenas espaço reservado. Ainda não usamos rótulos de volume.
+ acFSType:    .ascii "FAT16   "    # Tipo de sistema de arquivos como (NTFS, FAT32).
 /* end boot sector */

@@ -1,18 +1,12 @@
 # ***********************************************************
 #
-# DevOS 2012
+# DevOS 2018
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-# ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-# SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-# AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Implementado por Adriel Freud!
+# Contato: businessc0rp2k17@gmail.com
+# FB: http://www.facebook.com/xrn401
+#   =>DebutySecTeamSecurity<=
 # 
-# ***********************************************************
 # ***********************************************************
 
 .code16
@@ -20,13 +14,13 @@
 .text
 .org 0x0                                        
 
-LOAD_SEGMENT = 0x1000                     # load the 2nd stage loader to segment 1000h
-FAT_SEGMENT  = 0x0ee0                     # load FAT to segment 0x0ee0 (9*512 bytes under 2nd stage loader)
+LOAD_SEGMENT = 0x1000                     # carrega o carregador do segundo estágio para segmentar 1000h
+FAT_SEGMENT  = 0x0ee0                     # carrega o FAT no segmento 0x0ee0 (9 * 512 bytes no segundo loader de estágio)
 
 .global main
 
 main:
-    jmp short start                       # jump to beginning of code
+    jmp short start                       # pula para o começo do código
     nop
 
 .include "bootsector.s"
@@ -42,8 +36,8 @@ start:
   mStartSecondStage
 
 # 
-# Booting has failed because of a disk error. 
-# Inform the user and reboot.
+# A inicialização falhou devido a um erro no disco.
+# Informe o usuário e reinicie.
 # 
 bootFailure:
   mWriteString diskerror
@@ -57,9 +51,9 @@ rebootmsg:        .asciz "Press any key to reboot.\r\n"
 diskerror:        .asciz "Disk error. \r\n"
 loadmsg:          .asciz "Loading [Freud-OS]...\r\n"
 
-root_strt:   .byte 0,0      # hold offset of root directory on disk
-root_scts:   .byte 0,0      # holds # sectors in root directory
-file_strt:   .byte 0,0      # holds offset of bootloader on disk
+root_strt:   .byte 0,0      # hold offset do diretório raiz no disco
+root_scts:   .byte 0,0      # mantém # setores no diretório raiz
+file_strt:   .byte 0,0      # mantém o deslocamento do bootloader no disco
 
-.fill (510-(.-main)), 1, 0  # Pad with nulls up to 510 bytes (excl. boot magic)
-BootMagic:  .int 0xAA55     # magic word for BIOS
+.fill (510-(.-main)), 1, 0  # Pad com nulos até 510 bytes (excl. Mágica de inicialização)
+BootMagic:  .int 0xAA55     # palavra mágica para BIOS

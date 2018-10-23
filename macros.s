@@ -1,99 +1,93 @@
 # ***********************************************************
 #
-# DevOS 2012
+# DevOS 2018
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-# ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-# SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-# AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Implementado por Adriel Freud!
+# Contato: businessc0rp2k17@gmail.com
+# FB: http://www.facebook.com/xrn401
+#   =>DebutySecTeamSecurity<=
 # 
 # ***********************************************************
-# ***********************************************************
 
-# Initialize various segments:
-# - The boot sector is loaded by BIOS at 0:7C00 (CS = 0)
-# - CS, DS and ES are set to zero.
-# - Stack point is set to 0x7C00 and will grow down from there.
-# - Interrupts may not act now, so they are disabled.
+# Inicialize vários segmentos:
+# - O setor de inicialização é carregado pelo BIOS em 0: 7C00 (CS = 0)
+# - CS, DS e ES estão definidos como zero.
+# - O ponto de empilhamento está definido para 0x7C00 e aumentará a partir daí.
+# - Interrupções podem não agir agora, então elas estão desativadas.
 .macro mInitSegments
   cli                        
-  mov  iBootDrive, dl    # save what drive we booted from (should be 0x0)
-  mov  ax, cs            # CS is set to 0x0, because that is where boot sector is loaded (0:07c00)
+  mov  iBootDrive, dl    # salvar em qual unidade nós inicializamos (deve ser 0x0)
+  mov  ax, cs            # CS é definido como 0x0, porque é onde o setor de inicialização é carregado (0:07c00)
   mov  ds, ax            # DS = CS = 0x0 
   mov  es, ax            # ES = CS = 0x0
   mov  ss, ax            # SS = CS = 0x0
-  mov  sp, 0x7C00        # Stack grows down from offset 0x7C00 toward 0x0000.
+  mov  sp, 0x7C00        # Pilha cresce do deslocamento 0x7C00 para 0x0000.
   sti
 .endm
  
-# Reset disk system.
-# This is done through interrupt 0x13, subfunction 0.
-# If reset fails, carry is set and we jump to reboot.
+# Reinicie o sistema de disco.
+# Isso é feito através da interrupção 0x13, subfunção 0.
+# Se a reinicialização falhar, o carry está definido e saltamos para a reinicialização.
 .macro mResetDiskSystem
-  mov  dl, iBootDrive    # drive to reset
-  xor  ax, ax            # subfunction 0
-  int  0x13              # call interrupt 13h
-  jc   bootFailure       # display error message if carry set (error)  
+  mov  dl, iBootDrive    # drive para redefinir
+  xor  ax, ax            # subfuncao 0
+  int  0x13              # chama interrupt 13h
+  jc   bootFailure       # exibir mensagem de erro se transportar set (erro)  
 .endm
 
-# Write a string to stdout.
-# str = string to write
+# Escreva uma string para stdout.
+# str = string para escrever
 .macro mWriteString str
   lea    si,    \str
   call   WriteString
 .endm
 
-# Show a disk error message, wait for keystroke,
-# then reboot.
+# Mostrar uma mensagem de erro no disco, aguarde a tecla,
+# então reinicie.
 .macro mReboot
   call   Reboot
 .endm
 
-# places first sector of bootloader in file_strt
-# places # sectors in bootloader in file_scts
-# jumps to bootFailure if bootloader not found in root dir
+# coloca o primeiro setor do bootloader em file_strt
+# coloca # setores no bootloader em file_scts
+# salta para bootFailure se o bootloader não for encontrado no diretório raiz
 .macro mFindFile filename, loadsegment
 
-  # The root directory will be loaded in a higher segment.
-  # Set ES to this segment.
+  # O diretório raiz será carregado em um segmento superior.
+  # Defina ES para este segmento.
   mov     ax, \loadsegment
   mov     es, ax
   
-  # The number of sectors that the root directory occupies
-  # is equal to its max number of entries, times 32 bytes per
-  # entry, divided by sector size. 
-  # E.g. (32 * rootsize) / 512
-  # This normally yields 14 sectors on a FAT12 disk.
-  # We calculate this total, then store it in cx for later use in a loop.
+  # O número de setores que o diretório raiz ocupa
+  # é igual ao seu número máximo de entradas, vezes 32 bytes por
+  # entry, dividido pelo tamanho do setor.
+  # Por exemplo. (32 * raízes) / 512
+  # Isso normalmente produz 14 setores em um disco FAT12.
+  # Nós calculamos este total, então o armazenamos em cx para uso posterior em um loop.
   mov     ax, 32
   xor     dx, dx
   mul     word ptr iRootSize
   div     word ptr iSectSize          # Divide (dx:ax,sectsize) -> (ax,dx)
   mov     cx, ax                      
   mov     root_scts, cx
-  # root_scts is now the number of sectors in root directory.
+  # root_scts é agora o número de setores no diretório raiz.
   
-  # Calculate start sector root directory:
-  # root_strt = number of FAT tables * sectors per FAT
-  #           + number of hidden sectors
-  #           + number of reserved sectors
-  xor   ax, ax                      # find the root directory
-  mov   al, byte ptr iFatCnt        # ax = number of FAT tables
-  mov   bx, word ptr iFatSize       # bx = sectors per FAT
-  mul   bx                          # ax = #FATS * sectors per FAT
-  add   ax, word ptr iHiddenSect    # Add hidden sectors to ax
+  # Calcular o diretório raiz do setor de inicialização:
+  # root_strt = número de tabelas FAT * setores por FAT
+  # + número de setores ocultos
+  # + número de setores reservados
+  xor   ax, ax                      # encontre o diretório raiz
+  mov   al, byte ptr iFatCnt        # ax = número de tabelas FAT
+  mov   bx, word ptr iFatSize       # bx = ssetor por FAT
+  mul   bx                          # ax = #FATS * setor por FAT
+  add   ax, word ptr iHiddenSect    # Adicionar setores ocultos ao AX
   adc   ax, word ptr iHiddenSect+2
   add   ax, word ptr iResSect       # Add reserved sectors to ax
   mov   root_strt, ax
-  # root_strt is now the number of the first root sector 
+  # root_strt é agora o número do primeiro setor raiz
   
-  # Load a sector from the root directory.
-  # If sector reading fails, a reboot will occur.
+  # Carrega um setor do diretório raiz.
+  # Se a leitura do setor falhar, uma reinicialização ocorrerá.
   read_next_sector:
     push   cx
     push   ax
@@ -101,44 +95,44 @@
     call   ReadSector
     
   check_entry:
-    mov    cx, 11                      # Directory entries filenames are 11 bytes.
-    mov    di, bx                      # es:di = Directory entry address
-    lea    si, \filename               # ds:si = Address of filename we are looking for.
-    repz   cmpsb                       # Compare filename to memory.
-    je     found_file                  # If found, jump away.
-    add    bx, word ptr 32             # Move to next entry. Complete entries are 32 bytes.
-    cmp    bx, word ptr iSectSize      # Have we moved out of the sector yet?
-    jne    check_entry                 # If not, try next directory entry.
+    mov    cx, 11                      # Nomes de arquivos de entradas de diretório são 11 bytes.
+    mov    di, bx                      # es:di = Endereço de entrada de diretório
+    lea    si, \filename               # ds:si = Endereço do nome do arquivo que estamos procurando.
+    repz   cmpsb                       # Compare o nome do arquivo à memória.
+    je     found_file                  # Se encontrado, pule fora.
+    add    bx, word ptr 32             # Mover para a próxima entrada. Entradas completas são 32 bytes.
+    cmp    bx, word ptr iSectSize      # Já saímos do setor?
+    jne    check_entry                 # Se não, tente a próxima entrada de diretório.
     
     pop    ax
-    inc    ax                          # check next sector when we loop again
+    inc    ax                          # verifique o próximo setor quando voltarmos
     pop    cx
-    loopnz read_next_sector            # loop until either found or not
-    jmp    bootFailure                 # could not find file: abort
+    loopnz read_next_sector            # loop até encontrado ou não
+    jmp    bootFailure                 # não foi possível encontrar o arquivo: abort
     
   found_file:
-    # The directory entry stores the first cluster number of the file
-    # at byte 26 (0x1a). BX is still pointing to the address of the start
-    # of the directory entry, so we will go from there.
-    # Read cluster number from memory:
+    # A entrada de diretório armazena o primeiro número de cluster do arquivo
+    # no byte 26 (0x1a). BX ainda está apontando para o endereço do começo
+    # da entrada do diretório, então vamos de lá.
+    # Leia o número do cluster da memória:
     mov    ax, es:[bx+0x1a]
     mov    file_strt, ax
 .endm
 
 .macro mReadFAT fatsegment
-    # The FAT will be loaded in a special segment.
-    # Set ES to this segment.
+    # O FAT será carregado em um segmento especial.
+    # Defina ES para este segmento.
     mov   ax, \fatsegment
     mov   es, ax
   
-    # Calculate offset of FAT:
-    mov   ax, word ptr iResSect       # Add reserved sectors to ax  
-    add   ax, word ptr iHiddenSect    # Add hidden sectors to ax
+    # Calcular o deslocamento do FAT:
+    mov   ax, word ptr iResSect       # Adicionar setores reservados ao machado 
+    add   ax, word ptr iHiddenSect    # Adicione setores ocultos ao machado
     adc   ax, word ptr iHiddenSect+2
   
-    # Read all FAT sectors into memory:
-    mov   cx, word ptr iFatSize       # Number of sectors in FAT
-    xor   bx, bx                      # Memory offset to read into (es:bx)
+    # Leia todos os setores FAT na memória:
+    mov   cx, word ptr iFatSize       # Número de setores no FAT
+    xor   bx, bx                      # Deslocamento de memória para ler (es:bx)
   read_next_fat_sector:
     push  cx
     push  ax
@@ -147,65 +141,64 @@
     pop   cx
     inc   ax
     add   bx, word ptr iSectSize
-    loopnz read_next_fat_sector       # continue with next sector
+    loopnz read_next_fat_sector       # continua para o proximo setor
 .endm
 
-# Load a file into memory at the specified segment.
-# - The logical sector number of the file_start must be in file_strt
-# - The size of the file in sectors must be in file_scts
+# Carrega um arquivo na memória no segmento especificado.
+# - O número do setor lógico do file_start deve estar em file_strt
+# - O tamanho do arquivo em setores deve estar em file_scts
 .macro mReadFile loadsegment, fatsegment
-    # Set memory segment that will receive the file:
+    # Configure o segmento de memória que receberá o arquivo:
     mov     ax, \loadsegment
     mov     es, ax
-    # Set memory offset for loading to 0.
+    # Definir deslocamento de memória para carregamento em 0.
     xor     bx, bx
         
-    # Set memory segment for FAT:
-    mov     cx, file_strt             # CX now points to file's first FAT entry
+    # Definir o segmento de memória para FAT:
+    mov     cx, file_strt             # CX agora aponta para a primeira entrada FAT do arquivo
     
   read_file_next_sector:
-    # Locate sector:
-    mov     ax, cx                    # Sector to read is equal to current FAT entry
-    add     ax, root_strt             # Plus the start of the root directory
-    add     ax, root_scts             # Plus the size of the root directory
-    sub     ax, 2                     # ... but minus 2
+    # Localize setor:
+    mov     ax, cx                    # O setor a ser lido é igual à entrada atual do FAT
+    add     ax, root_strt             # Além do início do diretório raiz
+    add     ax, root_scts             # Além disso, o tamanho do diretório raiz
+    sub     ax, 2                     # ... mais o menos 2
     
-    # Read sector:
-    push    cx                        # Read a sector from disk, but save CX
-    call    ReadSector                # as it contains our FAT entry
+    # Leia setor:
+    push    cx                        # Leia um setor do disco, mas salve CX
+    call    ReadSector                # como contém nossa entrada FAT
     pop     cx
-    add     bx, iSectSize             # Move memory pointer to next section
+    add     bx, iSectSize             # Mover o ponteiro da memória para a próxima seção
     
-    # Get next sector from FAT:
-    push    ds                        # Make DS:SI point to FAT table
-    mov     dx, \fatsegment           # in memory.
+    # Obtenha o próximo setor do FAT:
+    push    ds                        # Faça o DS:SI aponte para a tabela FAT
+    mov     dx, \fatsegment           # Em Memoria.
     mov     ds, dx
     
-    mov     si, cx                    # Make SI point to the current FAT entry
-    mov     dx, cx                    # (offset is entry value * 1.5 bytes)
+    mov     si, cx                    # Faça o SI apontar para a entrada atual do FAT
+    mov     dx, cx                    # (offset é o valor de entrada * 1.5 bytes)
     shr     dx
     add     si, dx
     
-    mov     dx, ds:[si]               # Read the FAT entry from memory
-    test    dx, 1                     # See which way to shift
+    mov     dx, ds:[si]               # Leia a entrada FAT da memória
+    test    dx, 1                     # Veja qual caminho mudar
     jz      read_next_file_even
     and     dx, 0x0fff
     jmp     read_next_file_cluster_done
 read_next_file_even:    
     shr     dx, 4
 read_next_file_cluster_done:    
-    pop     ds                        # Restore DS to the normal data segment
-    mov     cx, dx                    # Store the new FAT entry in CX
-    cmp     cx, 0xff8                 # If the FAT entry is greater or equal
-    jl      read_file_next_sector     # to 0xff8, then we've reached end-of-file
+    pop     ds                        # Restaurar o DS para o segmento de dados normal
+    mov     cx, dx                    # Armazene a nova entrada FAT no CX
+    cmp     cx, 0xff8                 # Se a entrada FAT for maior ou igual
+    jl      read_file_next_sector     # para 0xff8, então chegamos ao fim do arquivo
 .endm
 
 .macro mStartSecondStage
-    # Make es and ds point to segment where 2nd stage was loaded.
+    # Faça es e ds apontarem para o segmento em que o segundo estágio foi carregado.
     mov     ax, word ptr LOAD_SEGMENT
     mov     es, ax
     mov     ds, ax
-    # Jump to second stage start of code:    
+    # Saltar para o início do segundo estágio:  
     jmp     LOAD_SEGMENT:0
 .endm
- 

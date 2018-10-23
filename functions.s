@@ -1,85 +1,79 @@
 # ***********************************************************
 #
-# DevOS 2012
+# DevOS 2018
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
-# ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
-# TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-# SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
-# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
-# AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-# THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Implementado por Adriel Freud!
+# Contato: businessc0rp2k17@gmail.com
+# FB: http://www.facebook.com/xrn401
+#   =>DebutySecTeamSecurity<=
 # 
-# ***********************************************************
 # ***********************************************************
 
-# 
-# Writes string at DS:SI to screen.
-# String must be NULL-terminated.
-# 
-# This function uses in 10h/ah=0xe (video - teletype output).
-# 
+#
+# Grava string no DS: SI para a tela.
+# String deve ser terminada com NULL.
+#
+# Esta função usa em 10h / ah = 0xe (saída de vídeo - teletipo).
+#
 .func WriteString
  WriteString:
-  lodsb                   # load byte at ds:si into al (advancing si)
-  or     al, al           # test if character is 0 (end)
-  jz     WriteString_done # jump to end if 0.
+  lodsb                   # load byte at ds:si em al (avançando si)
+  or     al, al           # teste se o caractere é 0 (end)
+  jz     WriteString_done # Pula para o final se for 0.
   
-  mov    ah, 0xe          # Subfunction 0xe of int 10h (video teletype output).
-  mov    bx, 9            # Set bh (page number) to 0, and bl (attribute) to white (9).
-  int    0x10             # call BIOS interrupt.
+  mov    ah, 0xe          # Subfunção 0xe de int 10h (video teletype output).
+  mov    bx, 9            # Seta bh (page number) para 0, e bl (attribute) para branco (9).
+  int    0x10             # Chama interreupção de BIOS.
   
-  jmp    WriteString      # Repeat for next character.
+  jmp    WriteString      # Repita para o próximo caractere.
  
  WriteString_done:
   retw
 .endfunc
 
-# 
-# Displays 'press any key', waits for key, then causes BIOS to reboot
-# This function uses BIOS interrupt 16h, subfunction 0 for reading a
-# keypress.
-# 
+#
+# Exibe 'pressione qualquer tecla', aguarda a chave e faz com que o BIOS seja reinicializado
+# Esta função usa a interrupção da BIOS 16h, subfunção 0 para ler um
+# pressione o botão.
+#
 .func Reboot
  Reboot:
-  lea    si, rebootmsg    # Load address of reboot message into si
-  call   WriteString      # print the string
+  lea    si, rebootmsg    # Carregar endereço da mensagem de reinicialização em si
+  call   WriteString      # printa a string
   xor    ax, ax           # subfuction 0
-  int    0x16             # call bios to wait for key
+  int    0x16             # ligue para o bios para esperar pela chave
 
-  .byte  0xEA             # machine language to jump to FFFF:0000 (reboot)
+  .byte  0xEA             # linguagem de máquina para pular para FFFF:0000 (reboot)
   .word  0x0000
   .word  0xFFFF
 .endfunc
 
-# Read sector with logical address (LBA) AX into data 
-# buffer at ES:BX. 
-# This function uses interrupt 13h, subfunction ah=2.
+# Leia setor com endereço lógico (LBA) AX em dados
+# buffer no ES: BX.
+# Esta função usa a interrupção 13h, subfunção ah = 2.
 .func ReadSector
 ReadSector:
   xor     cx, cx                      # Set try count = 0
 
  readsect:
-  push    ax                          # Store logical block
-  push    cx                          # Store try number
-  push    bx                          # Store data buffer offset
+  push    ax                          # Armazena o bloco lógico
+  push    cx                          # Tenta Armazenar o Numero
+  push    bx                          # Armazena o deslocamento do buffer de dados
    
   # Calculate cylinder, head and sector:
   # Cylinder = (LBA / SectorsPerTrack) / NumHeads
   # Sector   = (LBA mod SectorsPerTrack) + 1
   # Head     = (LBA / SectorsPerTrack) mod NumHeads
     
-  mov     bx, iTrackSect              # Get sectors per track
+  mov     bx, iTrackSect              # Pega setores por faixa
   xor     dx, dx
   div     bx                          # Divide (dx:ax/bx to ax,dx)
                                       # Quotient (ax) =  LBA / SectorsPerTrack
                                       # Remainder (dx) = LBA mod SectorsPerTrack
-  inc     dx                          # Add 1 to remainder, since sector 
-  mov     cl, dl                      # Store result in cl for int 13h call.
+  inc     dx                          # Adicionar 1 ao restante, desde setor
+  mov     cl, dl                      # Armazena o resultado no cl para a chamada int 13h.
   
-  mov     bx, iHeadCnt                # Get number of heads
+  mov     bx, iHeadCnt                # Obter número de cabeças
   xor     dx, dx
   div     bx                          # Divide (dx:ax/bx to ax,dx)
                                       # Quotient (ax) = Cylinder
@@ -87,39 +81,39 @@ ReadSector:
   mov     ch, al                      # ch = cylinder                      
   xchg    dl, dh                      # dh = head number
   
-  # Call interrupt 0x13, subfunction 2 to actually
-  # read the sector.
-  # al = number of sectors
-  # ah = subfunction 2
-  # cx = sector number
-  # dh = head number
-  # dl = drive number
-  # es:bx = data buffer
-  # If it fails, the carry flag will be set.
-  mov     ax, 0x0201                  # Subfunction 2, read 1 sector
-  mov     dl, iBootDrive              # from this drive
-  pop     bx                          # Restore data buffer offset.
+  # Chame a interrupção int 0x13, subfunção 2 para
+  # leia o setor.
+  # al = número de setores
+  # ah = SubFunçoes 2
+  # cx = número do setor
+  # dh = numbero de cabeçalho
+  # dl = numero de driver
+  # es:bx = buffer de dados
+  # Se falhar, o flag de transporte será definido.
+  mov     ax, 0x0201                  # Subfunção 2, leia 1 setor
+  mov     dl, iBootDrive              # desta unidade
+  pop     bx                          # Restaurar o deslocamento do buffer de dados.
   int     0x13
   jc      readfail
   
-  # On success, return to caller.
-  pop     cx                          # Discard try number
-  pop     ax                          # Get logical block from stack
+  # No sucesso, retorne ao chamador.
+  pop     cx                          # Descartar o número da tentativa
+  pop     ax                          # Obter bloco lógico da pilha
   ret
 
-  # The read has failed. 
-  # We will retry four times total, then jump to boot failure.
+  # A leitura falhou.
+  # Repetiremos quatro vezes o total e, em seguida, passaremos para a falha de inicialização.
  readfail:   
-  pop     cx                          # Get try number             
-  inc     cx                          # Next try
-  cmp     cx, word ptr 4              # Stop at 4 tries
+  pop     cx                          # Obter o número da tentativa            
+  inc     cx                          # Próxima tentativa
+  cmp     cx, word ptr 4              # Pare em 4 tentativas
   je      bootFailure
 
-  # Reset the disk system:
+  # Redefinir o sistema de disco:
   xor     ax, ax
   int     0x13
   
-  # Get logical block from stack and retry.
+  # Obtenha o bloco lógico da pilha e tente novamente.
   pop     ax
   jmp     readsect
 .endfunc
