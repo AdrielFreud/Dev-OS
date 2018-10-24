@@ -13,8 +13,10 @@
   </ul>
 </ul>
 <br/>
-<img style="margin-left: 150px" src="https://i.imgur.com/7gy23iP.png" alt="Screen">Version 0.1.1</img>
-<img style="margin-left: 150px" src="" alt="Screen">Version 0.2.1</img>
+<p>Version 0.1.1</p>
+<img style="margin-left: 150px" src="https://i.imgur.com/7gy23iP.png" alt="Screen"/>
+<p>Version 0.2.1</p>
+<img style="margin-left: 150px" src="https://i.imgur.com/TTkVKIP.png" alt="Screen"/>
 
 <li>Site Ensinando como criar um BootLoader do Zero.</li>
 <a href="http://www.independent-software.com/operating-system-development.html/" target="_blank">Independent Software</a>
