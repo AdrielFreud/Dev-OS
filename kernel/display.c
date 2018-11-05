@@ -142,6 +142,7 @@ void settextcolor(uint8 forecolor, uint8 backcolor)
 
 void init_video()
 {
+	settextcolor(12, 21);
 	char* str = "Copyright by Adriel Freud. Dev-OS";
 	textmemptr = (uint16*) 0xb8000;
 	
