@@ -54,8 +54,8 @@ void move_csr(void)
 
 void cls()
 {
-  /* Preencha a tela com espaços em branco (com o atributo atual) */	
-	uint16 blank = 0x20 | (attrib << 8);
+  /* Preencha a tela com espaços em branco (com o atributo atual) */  
+  uint16 blank = 0x20 | (attrib << 8);
   memsetw ((uint16*) textmemptr, blank, 80 * 25);
 
   /* Mover o cursor do hardware para 0,0. */
@@ -103,7 +103,7 @@ void putch(char c)
   else if(c >= ' ')
   {
       where = textmemptr + (csr_y * 80 + csr_x);
-      *where = c | att;	/*Caractere e atributos: cor */
+      *where = c | att; /*Caractere e atributos: cor */
       csr_x++;
   }
 
@@ -123,7 +123,7 @@ void putch(char c)
 /* Usa a rotina acima para gerar uma string ...*/
 void puts(char *text)
 {
-	uint32 len = strlen(text);
+  uint32 len = strlen(text);
   uint32 i;
 
   for (i = 0; i < len; i++)
@@ -142,10 +142,11 @@ void settextcolor(uint8 forecolor, uint8 backcolor)
 
 void init_video()
 {
-	settextcolor(12, 21);
-	char* str = "Copyright by Adriel Freud. Dev-OS";
-	textmemptr = (uint16*) 0xb8000;
-	
-	cls();
-	puts(str);
+  char* str = "Copyright by Adriel Freud. Dev-OS";
+  textmemptr = (uint16*) 0xb8000;
+  
+  cls();
+  mylabel:
+    settextcolor(12, 21);
+    puts(str);
 }
