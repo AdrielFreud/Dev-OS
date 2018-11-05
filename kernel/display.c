@@ -143,12 +143,10 @@ void settextcolor(uint8 forecolor, uint8 backcolor)
 void init_video()
 {
   settextcolor(124, 218);
-  char* str = "Copyright by Adriel Freud. Dev-OS";
+  char* str = "\n\n\n\n\n\n\n\n\n\n\t\t\tCopyright by Adriel Freud. Dev-OS";
   textmemptr = (uint16*) 0xb8000;
   
   cls();
-  mylabel:
-    settextcolor(12, 21);
-    puts(str);
-    goto mylabel;
+  settextcolor(12, 21);
+  puts(str);
 }
