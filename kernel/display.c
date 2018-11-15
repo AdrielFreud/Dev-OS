@@ -147,6 +147,6 @@ void init_video()
   textmemptr = (uint16*) 0xb8000;
   
   cls();
-  settextcolor(12, 21);
+  settextcolor(12, 00);
   puts(str);
 }
