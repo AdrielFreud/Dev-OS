@@ -17,5 +17,5 @@
 <img style="margin-left: 150px" src="https://i.imgur.com/7gy23iP.png" alt="Screen"/>
 <p>Version 0.2.1</p>
 <img style="margin-left: 150px" src="https://i.imgur.com/2MWGWhp.png" alt="Screen"/>
-
-
+<p>Version 0.2.2</p>
+<img style="margin-left: 150px" src="https://i.imgur.com/9jNAddM.png" alt="Screen"/>
